@@ -7,6 +7,21 @@ class block_progressreview extends block_base {
         $this->title = get_string('pluginname', 'block_progressreview');
     }
 
+    function instance_allow_multiple() {
+        return false;
+    }
+
+    function  instance_can_be_hidden() {
+        return false;
+    }
+
+    function applicable_formats() {
+        return array(
+            'all' => false,
+            'site' => true
+        );
+    }
+
     public function get_content() {
         global $CFG;
 
