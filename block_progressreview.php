@@ -51,6 +51,13 @@ class block_progressreview extends block_base {
             $reviewcourses = array();
             foreach($mycourses as $course) {
                 if(progressreview_controller::get_reviews($session->id, null, $course->id, $USER->id)) {
+                    $course->reviewtype = PROGRESSREVIEW_SUBJECT;
+                    $reviewcourses[] = $course;
+                }
+            }
+            foreach($mycourses as $course) {
+                if(progressreview_controller::get_reviews($session->id, null, $course->id, $USER->id, PROGRESSREVIEW_TUTOR)) {
+                    $course->reviewtype = PROGRESSREVIEW_TUTOR;
                     $reviewcourses[] = $course;
                 }
             }
