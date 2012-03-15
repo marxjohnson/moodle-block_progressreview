@@ -28,7 +28,7 @@ class block_progressreview extends block_base {
         $output = $this->page->get_renderer('block_progressreview');
         $currentsessions = $this->get_current_sessions();
         $courseswithreviews = $this->get_my_courses_with_reviews($currentsessions);
-        $this->content->text = $output->review_list($currentsessions);
+        $this->content->text = $output->review_list($courseswithreviews);
 
     }
 
@@ -45,25 +45,34 @@ class block_progressreview extends block_base {
 
     private function get_my_courses_with_reviews($sessions) {
         global $USER;
-        $mycourses = enrol_get_my_courses();
+        //$mycourses = enrol_get_my_courses();
         $courseswithreviews = array();
         foreach ($sessions as $session) {
             $reviewcourses = array();
-            foreach($mycourses as $course) {
-                if(progressreview_controller::get_reviews($session->id, null, $course->id, $USER->id)) {
+            $subjectreviews = progressreview_controller::get_reviews($session->id, null, null, $USER->id, PROGRESSREVIEW_SUBJECT);
+            $tutorreviews = progressreview_controller::get_reviews($session->id, null, null, $USER->id, PROGRESSREVIEW_TUTOR);
+            foreach ($subjectreviews as $review) {
+                $course = clone($review->get_course());
+                if (!array_key_exists($course->originalid, $reviewcourses)) {
+                    $course->id = $course->originalid;
+                    unset($course->originalid);
                     $course->reviewtype = PROGRESSREVIEW_SUBJECT;
-                    $reviewcourses[] = $course;
+                    $reviewcourses[$course->id] = $course;
                 }
             }
-            foreach($mycourses as $course) {
-                if(progressreview_controller::get_reviews($session->id, null, $course->id, $USER->id, PROGRESSREVIEW_TUTOR)) {
+            foreach ($tutorreviews as $review) {
+                $course = clone($review->get_course());
+                if (!array_key_exists($course->originalid, $reviewcourses)) {
+                    $course->id = $course->originalid;
+                    unset($course->originalid);
                     $course->reviewtype = PROGRESSREVIEW_TUTOR;
-                    $reviewcourses[] = $course;
+                    $reviewcourses[$course->id] = $course;
                 }
             }
             $session->courses = $reviewcourses;
-            $courseswithreviews[] = $session; 
+            $courseswithreviews[] = $session;
         }
+        return $courseswithreviews;
     }
 
 }
