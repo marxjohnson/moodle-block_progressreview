@@ -36,7 +36,12 @@ class block_progressreview extends block_base {
         $sessions = progressreview_controller::get_sessions();
         $activesessions = array();
         foreach ($sessions as $session) {
-            if ($session->deadline_tutor >= strtotime('1 week ago')) {
+            if ($session->deadline_active) {
+                $active = $session->deadline_active >= time();
+            } else {
+                $active = $session->deadline_tutor >= strtotime('1 week ago');
+            }
+            if ($active) {
                 $activesessions[] = $session;
             }
         }
